@@ -1,64 +1,203 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 
-const checklistItems = [
-  { title: "Ausweis und Reisepass", description: "Neue Dokumente beim Bürgerbüro beantragen: alter Ausweis, Passfoto, Nachweis mitbringen." },
-  { title: "Führerschein und Fahrzeugpapiere", description: "Führerschein & Fahrzeugbrief/-schein bei der Zulassungsstelle umschreiben lassen." },
-  { title: "Versicherungen", description: "Kfz-, Kranken-, Haftpflicht-, Lebensversicherungen und Rentenkasse informieren." },
-  { title: "Banken und Finanzen", description: "Bank, Kreditkarten, PayPal, Amazon, Daueraufträge etc. aktualisieren." },
-  { title: "Verträge und Mitgliedschaften", description: "Handy, Strom, Internet, Streamingdienste und Mitgliedschaften anpassen." },
-  { title: "Post und Behörden", description: "Finanzamt, GEZ, Agentur für Arbeit informieren (oft automatisch mit Ausweisänderung)." },
-  { title: "Berufliches und Soziales", description: "Arbeitgeber, Rentenkonto, Berufskammern, Schulen, Kitas informieren." },
-  { title: "Digitales Leben", description: "E-Mail-Adressen, Social Media, Kundenkonten (z. B. Zalando, eBay) anpassen." },
-  { title: "Für deinen Hund Pepper", description: "Namensänderung bei Stadt (Hundesteuer), Tierarzt, Versicherung, Hundeschule mitteilen." },
-  { title: "Tipp: Dokumentenmappe anlegen", description: "Heiratsurkunde, Ausweise, Liste aller Stellen als Mappe vorbereiten." },
+const defaultChecklist = [
+  {
+    title: "Ausweis und Reisepass",
+    description: "Neue Dokumente beim Bürgerbüro beantragen: alter Ausweis, Passfoto, Nachweis mitbringen.",
+    subtasks: ["Bürgerbüro-Termin buchen"]
+  },
+  {
+    title: "Führerschein und Fahrzeugpapiere",
+    description: "Führerschein & Fahrzeugbrief/-schein bei der Zulassungsstelle umschreiben lassen.",
+    subtasks: ["Zulassungsstelle Termin buchen"]
+  },
+  {
+    title: "Versicherungen",
+    description: "Alle Versicherungen informieren.",
+    subtasks: ["Krankenkasse", "KFZ-Versicherung", "Haftpflichtversicherung", "Lebensversicherung", "Rentenversicherung"]
+  },
+  {
+    title: "Banken und Finanzen",
+    description: "Bank, Kreditkarten, PayPal, Amazon, Daueraufträge etc. aktualisieren.",
+    subtasks: ["Hausbank", "Kreditkartenanbieter", "Online-Dienste (z. B. PayPal)"]
+  },
+  {
+    title: "Verträge und Mitgliedschaften",
+    description: "Handy, Strom, Internet, Streamingdienste und Mitgliedschaften anpassen.",
+    subtasks: ["Mobilfunkanbieter", "Stromanbieter", "Streamingdienste"]
+  },
+  {
+    title: "Post und Behörden",
+    description: "Finanzamt, GEZ informieren (oft automatisch mit Ausweisänderung).",
+    subtasks: ["Finanzamt", "Rundfunkbeitrag"]
+  },
+  {
+    title: "Berufliches und Soziales",
+    description: "Arbeitgeber, Rentenkonto, Berufskammern informieren.",
+    subtasks: ["Arbeitgeber", "Berufskammer"]
+  },
+  {
+    title: "Digitales Leben",
+    description: "E-Mail-Adressen, Social Media, Kundenkonten (z. B. Zalando, eBay) anpassen.",
+    subtasks: ["E-Mail-Adressen", "Online-Shops", "Soziale Netzwerke"]
+  },
+  {
+    title: "Für deinen Hund Pepper",
+    description: "Namensänderung bei Stadt (Hundesteuer), Tierarzt, Versicherung mitteilen.",
+    subtasks: ["Stadtverwaltung", "Tierarzt", "Versicherung"]
+  },
+  {
+    title: "Tipp: Dokumentenmappe anlegen",
+    description: "Heiratsurkunde, Ausweise, Liste aller Stellen als Mappe vorbereiten.",
+    subtasks: []
+  },
 ];
 
 export default function NamensCheckliste() {
-  const [checked, setChecked] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem("checklist_state");
-      return stored ? JSON.parse(stored) : Array(checklistItems.length).fill(false);
-    }
-    return Array(checklistItems.length).fill(false);
-  });
+  const storedCustom = localStorage.getItem("custom_checklist");
+  const checklistItems = storedCustom ? JSON.parse(storedCustom) : defaultChecklist;
+  const [checked, setChecked] = useState(
+    checklistItems.map(item => item.subtasks.map(() => false))
+  );
+
+  const [termine, setTermine] = useState(
+    checklistItems.map(() => "")
+  );
 
   useEffect(() => {
-    localStorage.setItem("checklist_state", JSON.stringify(checked));
-  }, [checked]);
+    const reminders = termine.filter(Boolean);
+    reminders.forEach((entry, i) => {
+      if (entry.toLowerCase().includes("morgen")) {
+        const title = checklistItems[i].title;
+        setTimeout(() => {
+          alert(`🔔 Erinnerung: Termin für '${title}' steht morgen an!`);
+        }, 2000);
+      }
+    });
+  }, [termine]);
 
-  const toggleCheck = (index) => {
+  const toggleCheck = (itemIdx, subIdx) => {
     const updated = [...checked];
-    updated[index] = !updated[index];
+    updated[itemIdx][subIdx] = !updated[itemIdx][subIdx];
     setChecked(updated);
-    if (updated[index]) {
+    if (updated[itemIdx][subIdx]) {
+      const allDone = updated.flat().every(Boolean);
+      if (allDone) {
+        const audio = new Audio("https://freesound.org/data/previews/341/341695_5260877-lq.mp3");
+        audio.play();
+        alert("🎉 Alles erledigt – du bist durch! Zeit für Sekt!");
+      }
+      const isPepperTask = checklistItems[itemIdx].title.includes("Pepper");
       confetti({
-        particleCount: 75,
-        spread: 70,
-        origin: { y: 0.6 }
+        particleCount: 100,
+        spread: 80,
+        origin: { y: 0.6 },
+        colors: isPepperTask ? ['#ff69b4', '#ffd700'] : undefined
       });
+      if (isPepperTask) {
+        alert("🐶 Pepper sagt: Gut gemacht!");
+      }
     }
   };
 
-  const progress = (checked.filter(Boolean).length / checklistItems.length) * 100;
+  const handleTerminChange = (index, value) => {
+    const updated = [...termine];
+    updated[index] = value;
+    setTermine(updated);
+  };
+
+  const handleDownloadPDF = () => {
+    const content = document.getElementById("checkliste-root");
+    const printWindow = window.open('', '', 'width=800,height=600');
+    printWindow.document.write('<html><head><title>Checkliste PDF</title></head><body>');
+    printWindow.document.write(content.innerHTML);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  };
 
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '1rem' }}>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', textAlign: 'center' }}>📝 Namensänderung-Checkliste</h1>
-      <progress value={progress} max="100" style={{ width: '100%', height: '1rem', marginBottom: '1rem' }} />
-      <p style={{ textAlign: 'center' }}>{Math.round(progress)}% erledigt</p>
-      {checklistItems.map((item, index) => (
-        <label key={index} style={{ display: 'block', background: '#f9f9f9', marginBottom: '1rem', padding: '1rem', borderRadius: '8px' }}>
-          <input
-            type="checkbox"
-            checked={checked[index]}
-            onChange={() => toggleCheck(index)}
-            style={{ marginRight: '0.5rem' }}
-          />
-          <strong>{item.title}</strong>
-          <p style={{ margin: '0.5rem 0 0 1.5rem', fontSize: '0.9rem', color: '#555' }}>{item.description}</p>
-        </label>
+    <div id="checkliste-root" style={{ maxWidth: '700px', margin: '2rem auto', background: '#fff3e0', padding: '1rem', borderRadius: '1rem' }}>
+      <h1 style={{ textAlign: 'center', color: '#bf360c' }}>📋 Namensänderung-Checkliste</h1>
+      {checklistItems.map((item, i) => (
+        <div key={i} style={{ marginBottom: '2rem', padding: '1rem', background: '#ffffff', borderRadius: '0.5rem', boxShadow: '0 0 5px rgba(0,0,0,0.1)' }}>
+          <h2 style={{ color: `hsl(${i * 36}, 70%, 45%)`, fontWeight: 'bold' }}>{item.title}</h2>
+          <p>{item.description}</p>
+          <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
+            {item.subtasks.map((sub, j) => (
+              <li key={j}>
+                <label style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <input
+                    type="checkbox"
+                    checked={checked[i][j]}
+                    onChange={() => toggleCheck(i, j)}
+                    style={{ marginRight: '0.5rem' }}
+                  />
+                  {sub}
+                </label>
+              </li>
+            ))}
+          </ul>
+          {(item.title.includes("Ausweis") || item.title.includes("Führerschein")) && (
+            <div>
+              <label>
+                📅 Termin notieren: 
+                <input
+                  type="text"
+                  placeholder="z. B. 24.06. – 10:00 Uhr oder 'morgen'"
+                  value={termine[i]}
+                  onChange={(e) => handleTerminChange(i, e.target.value)}
+                  style={{ marginLeft: '0.5rem', padding: '0.25rem', borderRadius: '4px', border: '1px solid #ccc' }}
+                />
+              </label>
+            </div>
+          )}
+        </div>
       ))}
+    <div style={{ textAlign: 'center', marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
+        <button onClick={handleDownloadPDF} style={{ padding: '0.5rem 1rem', background: '#81c784', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+          📄 Als PDF speichern
+        </button>
+        <button onClick={() => {
+          localStorage.removeItem("custom_checklist");
+          window.location.reload();
+        }} style={{ padding: '0.5rem 1rem', background: '#e57373', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+          🔄 Eigene Aufgaben zurücksetzen
+        </button>
+      </div>
+    <div style={{ marginTop: '3rem', padding: '1rem', borderTop: '2px solid #ccc' }}>
+        <h2 style={{ color: '#6a1b9a' }}>🆕 Eigene Aufgabe hinzufügen</h2>
+        <label style={{ display: 'block', marginBottom: '0.5rem' }}>
+          Titel:<br />
+          <input type="text" id="custom-title" style={{ width: '100%', padding: '0.5rem', marginBottom: '0.5rem' }} />
+        </label>
+        <label style={{ display: 'block', marginBottom: '0.5rem' }}>
+          Beschreibung:<br />
+          <input type="text" id="custom-desc" style={{ width: '100%', padding: '0.5rem', marginBottom: '0.5rem' }} />
+        </label>
+        <label style={{ display: 'block', marginBottom: '0.5rem' }}>
+          Unterpunkte (durch Kommas trennen):<br />
+          <input type="text" id="custom-subtasks" style={{ width: '100%', padding: '0.5rem' }} />
+        </label>
+        <button onClick={() => {
+          const title = document.getElementById("custom-title").value;
+          const desc = document.getElementById("custom-desc").value;
+          const subtasks = document.getElementById("custom-subtasks").value.split(',').map(s => s.trim()).filter(Boolean);
+          if (!title) return;
+          const newItem = { title, description: desc, subtasks };
+          checklistItems.push(newItem);
+          localStorage.setItem("custom_checklist", JSON.stringify(checklistItems));
+          setChecked([...checked, subtasks.map(() => false)]);
+          setTermine([...termine, ""]);
+          document.getElementById("custom-title").value = "";
+          document.getElementById("custom-desc").value = "";
+          document.getElementById("custom-subtasks").value = "";
+        }} style={{ marginTop: '0.5rem', padding: '0.5rem 1rem', background: '#ba68c8', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+          ➕ Hinzufügen
+        </button>
+      </div>
     </div>
   );
 }
