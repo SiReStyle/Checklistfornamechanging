@@ -2,56 +2,16 @@ import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 
 const defaultChecklist = [
-  {
-    title: "Ausweis und Reisepass",
-    description: "Neue Dokumente beim Bürgerbüro beantragen: alter Ausweis, Passfoto, Nachweis mitbringen.",
-    subtasks: ["Bürgerbüro-Termin buchen"]
-  },
-  {
-    title: "Führerschein und Fahrzeugpapiere",
-    description: "Führerschein & Fahrzeugbrief/-schein bei der Zulassungsstelle umschreiben lassen.",
-    subtasks: ["Zulassungsstelle Termin buchen"]
-  },
-  {
-    title: "Versicherungen",
-    description: "Alle Versicherungen informieren.",
-    subtasks: ["Krankenkasse", "KFZ-Versicherung", "Haftpflichtversicherung", "Lebensversicherung", "Rentenversicherung"]
-  },
-  {
-    title: "Banken und Finanzen",
-    description: "Bank, Kreditkarten, PayPal, Amazon, Daueraufträge etc. aktualisieren.",
-    subtasks: ["Hausbank", "Kreditkartenanbieter", "Online-Dienste (z. B. PayPal)"]
-  },
-  {
-    title: "Verträge und Mitgliedschaften",
-    description: "Handy, Strom, Internet, Streamingdienste und Mitgliedschaften anpassen.",
-    subtasks: ["Mobilfunkanbieter", "Stromanbieter", "Streamingdienste"]
-  },
-  {
-    title: "Post und Behörden",
-    description: "Finanzamt, GEZ informieren (oft automatisch mit Ausweisänderung).",
-    subtasks: ["Finanzamt", "Rundfunkbeitrag"]
-  },
-  {
-    title: "Berufliches und Soziales",
-    description: "Arbeitgeber, Rentenkonto, Berufskammern informieren.",
-    subtasks: ["Arbeitgeber", "Berufskammer"]
-  },
-  {
-    title: "Digitales Leben",
-    description: "E-Mail-Adressen, Social Media, Kundenkonten (z. B. Zalando, eBay) anpassen.",
-    subtasks: ["E-Mail-Adressen", "Online-Shops", "Soziale Netzwerke"]
-  },
-  {
-    title: "Für deinen Hund Pepper",
-    description: "Namensänderung bei Stadt (Hundesteuer), Tierarzt, Versicherung mitteilen.",
-    subtasks: ["Stadtverwaltung", "Tierarzt", "Versicherung"]
-  },
-  {
-    title: "Tipp: Dokumentenmappe anlegen",
-    description: "Heiratsurkunde, Ausweise, Liste aller Stellen als Mappe vorbereiten.",
-    subtasks: []
-  },
+  { title: "Ausweis und Reisepass", description: "Neue Dokumente beim Bürgerbüro beantragen: alter Ausweis, Passfoto, Nachweis mitbringen.", subtasks: ["Bürgerbüro-Termin buchen"] },
+  { title: "Führerschein und Fahrzeugpapiere", description: "Führerschein & Fahrzeugbrief/-schein bei der Zulassungsstelle umschreiben lassen.", subtasks: ["Zulassungsstelle Termin buchen"] },
+  { title: "Versicherungen", description: "Alle Versicherungen informieren.", subtasks: ["Krankenkasse", "KFZ-Versicherung", "Haftpflichtversicherung", "Lebensversicherung", "Rentenversicherung"] },
+  { title: "Banken und Finanzen", description: "Bank, Kreditkarten, PayPal, Amazon, Daueraufträge etc. aktualisieren.", subtasks: ["Hausbank", "Kreditkartenanbieter", "Online-Dienste (z. B. PayPal)"] },
+  { title: "Verträge und Mitgliedschaften", description: "Handy, Strom, Internet, Streamingdienste und Mitgliedschaften anpassen.", subtasks: ["Mobilfunkanbieter", "Stromanbieter", "Streamingdienste"] },
+  { title: "Post und Behörden", description: "Finanzamt, GEZ informieren (oft automatisch mit Ausweisänderung).", subtasks: ["Finanzamt", "Rundfunkbeitrag"] },
+  { title: "Berufliches und Soziales", description: "Arbeitgeber, Rentenkonto, Berufskammern informieren.", subtasks: ["Arbeitgeber", "Berufskammer"] },
+  { title: "Digitales Leben", description: "E-Mail-Adressen, Social Media, Kundenkonten (z. B. Zalando, eBay) anpassen.", subtasks: ["E-Mail-Adressen", "Online-Shops", "Soziale Netzwerke"] },
+  { title: "Für deinen Hund Pepper", description: "Namensänderung bei Stadt (Hundesteuer), Tierarzt, Versicherung mitteilen.", subtasks: ["Stadtverwaltung", "Tierarzt", "Versicherung"] },
+  { title: "Tipp: Dokumentenmappe anlegen", description: "Heiratsurkunde, Ausweise, Liste aller Stellen als Mappe vorbereiten.", subtasks: [] }
 ];
 
 export default function NamensCheckliste() {
@@ -61,12 +21,10 @@ export default function NamensCheckliste() {
     const saved = localStorage.getItem("checked_state");
     return saved ? JSON.parse(saved) : checklistItems.map(item => item.subtasks.map(() => false));
   });
-
   const [termine, setTermine] = useState(() => {
     const saved = localStorage.getItem("termine_state");
     return saved ? JSON.parse(saved) : checklistItems.map(() => "");
   });
-
   const [notizen, setNotizen] = useState(() => {
     const saved = localStorage.getItem("notizen_state");
     return saved ? JSON.parse(saved) : checklistItems.map(() => []);
@@ -103,9 +61,7 @@ export default function NamensCheckliste() {
         origin: { y: 0.6 },
         colors: isPepperTask ? ['#ff69b4', '#ffd700'] : undefined
       });
-      if (isPepperTask) {
-        alert("🐶 Pepper sagt: Gut gemacht!");
-      }
+      if (isPepperTask) alert("🐶 Pepper sagt: Gut gemacht!");
     }
   };
 
@@ -113,7 +69,6 @@ export default function NamensCheckliste() {
     const updated = [...termine];
     updated[index] = value;
     setTermine(updated);
-    localStorage.setItem("termine_state", JSON.stringify(updated));
     localStorage.setItem("termine_state", JSON.stringify(updated));
   };
 
@@ -134,35 +89,74 @@ export default function NamensCheckliste() {
       {checklistItems.map((item, i) => (
         <div key={i} style={{ position: 'relative', marginBottom: '2rem', padding: '1rem', background: '#ffffff', borderRadius: '0.5rem', boxShadow: '0 0 5px rgba(0,0,0,0.1)' }}>
           <h2 style={{ color: `hsl(${i * 36}, 70%, 45%)`, fontWeight: 'bold' }}>{item.title}
-            {storedCustom && checklistItems.length > defaultChecklist.length && i >= defaultChecklist.length && (
-              <button
-                onClick={() => {
-                  const updatedItems = checklistItems.filter((_, idx) => idx !== i);
-                  const updatedChecked = checked.filter((_, idx) => idx !== i);
-                  const updatedTermine = termine.filter((_, idx) => idx !== i);
-                  const updatedNotizen = notizen.filter((_, idx) => idx !== i);
-                  localStorage.setItem("custom_checklist", JSON.stringify(updatedItems));
-                  localStorage.setItem("checked_state", JSON.stringify(updatedChecked));
-                  localStorage.setItem("termine_state", JSON.stringify(updatedTermine));
-                  localStorage.setItem("notizen_state", JSON.stringify(updatedNotizen));
-                  window.location.reload();
-                }}
-                style={{
-                  marginLeft: '0.5rem',
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#888',
-                  cursor: 'pointer'
-                }}
-                onMouseOver={(e) => e.target.style.color = '#f28b82'}
-                onMouseOut={(e) => e.target.style.color = '#888'}
-              >
+            {storedCustom && i >= defaultChecklist.length && (
+              <button onClick={() => {
+                const updatedItems = checklistItems.filter((_, idx) => idx !== i);
+                const updatedChecked = checked.filter((_, idx) => idx !== i);
+                const updatedTermine = termine.filter((_, idx) => idx !== i);
+                const updatedNotizen = notizen.filter((_, idx) => idx !== i);
+                localStorage.setItem("custom_checklist", JSON.stringify(updatedItems));
+                localStorage.setItem("checked_state", JSON.stringify(updatedChecked));
+                localStorage.setItem("termine_state", JSON.stringify(updatedTermine));
+                localStorage.setItem("notizen_state", JSON.stringify(updatedNotizen));
+                window.location.reload();
+              }} style={{ marginLeft: '0.5rem', background: 'transparent', border: 'none', color: '#888', cursor: 'pointer' }} onMouseOver={(e) => e.target.style.color = '#f28b82'} onMouseOut={(e) => e.target.style.color = '#888'}>
                 ❌
               </button>
-            )}</h2>
-        
-      </div>
-          <div style={{ marginTop: '3rem', padding: '1rem', borderTop: '2px solid #ccc' }}>
+            )}
+          </h2>
+          <p>{item.description}</p>
+          <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
+            {item.subtasks.map((sub, j) => (
+              <li key={j}>
+                <label style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <input type="checkbox" checked={checked[i][j]} onChange={() => toggleCheck(i, j)} style={{ marginRight: '0.5rem' }} />
+                  {sub}
+                </label>
+              </li>
+            ))}
+          </ul>
+          {(item.title.includes("Ausweis") || item.title.includes("Führerschein")) && (
+            <div>
+              <label>
+                📅 Termin notieren:
+                <input type="text" placeholder="z. B. 24.06. – 10:00 Uhr oder 'morgen'" value={termine[i]} onChange={(e) => handleTerminChange(i, e.target.value)} style={{ marginLeft: '0.5rem', padding: '0.25rem', borderRadius: '4px', border: '1px solid #ccc' }} />
+              </label>
+            </div>
+          )}
+          <div style={{ marginTop: '0.5rem' }}>
+            <label>
+              ✏️ Eigene Notiz:
+              <input type="text" placeholder="Gedanken, Händler, Extras..." onKeyDown={(e) => {
+                if (e.key === 'Enter' && e.target.value.trim()) {
+                  const updated = [...notizen];
+                  updated[i] = [...updated[i], e.target.value.trim()];
+                  setNotizen(updated);
+                  localStorage.setItem("notizen_state", JSON.stringify(updated));
+                  e.target.value = "";
+                }
+              }} style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem', borderRadius: '5px', border: '1px solid #ccc' }} />
+            </label>
+            <ul style={{ paddingLeft: '1rem', marginTop: '0.5rem' }}>
+              {notizen[i].map((note, ni) => (
+                <li key={ni} style={{ fontSize: '0.9rem', color: '#555', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>– {note}</span>
+                  <button onClick={() => {
+                    const updated = [...notizen];
+                    updated[i].splice(ni, 1);
+                    setNotizen(updated);
+                    localStorage.setItem("notizen_state", JSON.stringify(updated));
+                  }} style={{ marginLeft: '0.5rem', background: 'transparent', border: 'none', color: '#888', cursor: 'pointer' }} onMouseOver={(e) => e.target.style.color = '#f28b82'} onMouseOut={(e) => e.target.style.color = '#888'}>
+                    ❌
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      ))}
+
+      <div style={{ marginTop: '3rem', padding: '1rem', borderTop: '2px solid #ccc' }}>
         <h2 style={{ color: '#6a1b9a' }}>🆕 Eigene Aufgabe hinzufügen</h2>
         <label style={{ display: 'block', marginBottom: '0.5rem' }}>
           Titel:<br />
@@ -186,6 +180,7 @@ export default function NamensCheckliste() {
           localStorage.setItem("custom_checklist", JSON.stringify(checklistItems));
           setChecked([...checked, subtasks.map(() => false)]);
           setTermine([...termine, ""]);
+          setNotizen([...notizen, []]);
           document.getElementById("custom-title").value = "";
           document.getElementById("custom-desc").value = "";
           document.getElementById("custom-subtasks").value = "";
