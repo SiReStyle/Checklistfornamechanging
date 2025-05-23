@@ -57,13 +57,20 @@ const defaultChecklist = [
 export default function NamensCheckliste() {
   const storedCustom = localStorage.getItem("custom_checklist");
   const checklistItems = storedCustom ? JSON.parse(storedCustom) : defaultChecklist;
-  const [checked, setChecked] = useState(
-    checklistItems.map(item => item.subtasks.map(() => false))
-  );
+  const [checked, setChecked] = useState(() => {
+    const saved = localStorage.getItem("checked_state");
+    return saved ? JSON.parse(saved) : checklistItems.map(item => item.subtasks.map(() => false));
+  });
 
-  const [termine, setTermine] = useState(
-    checklistItems.map(() => "")
-  );
+  const [termine, setTermine] = useState(() => {
+    const saved = localStorage.getItem("termine_state");
+    return saved ? JSON.parse(saved) : checklistItems.map(() => "");
+  });
+
+  const [notizen, setNotizen] = useState(() => {
+    const saved = localStorage.getItem("notizen_state");
+    return saved ? JSON.parse(saved) : checklistItems.map(() => []);
+  });
 
   useEffect(() => {
     const reminders = termine.filter(Boolean);
@@ -81,6 +88,7 @@ export default function NamensCheckliste() {
     const updated = [...checked];
     updated[itemIdx][subIdx] = !updated[itemIdx][subIdx];
     setChecked(updated);
+    localStorage.setItem("checked_state", JSON.stringify(updated));
     if (updated[itemIdx][subIdx]) {
       const allDone = updated.flat().every(Boolean);
       if (allDone) {
@@ -105,6 +113,8 @@ export default function NamensCheckliste() {
     const updated = [...termine];
     updated[index] = value;
     setTermine(updated);
+    localStorage.setItem("termine_state", JSON.stringify(updated));
+    localStorage.setItem("termine_state", JSON.stringify(updated));
   };
 
   const handleDownloadPDF = () => {
@@ -119,27 +129,52 @@ export default function NamensCheckliste() {
   };
 
   return (
-    <div id="checkliste-root" style={{ maxWidth: '700px', margin: '2rem auto', background: '#fff3e0', padding: '1rem', borderRadius: '1rem' }}>
+    <div id="checkliste-root" style={{ maxWidth: '700px', margin: '2rem auto', background: '#e1f5fe', padding: '1rem', borderRadius: '1rem' }}>
       <h1 style={{ textAlign: 'center', color: '#bf360c' }}>📋 Namensänderung-Checkliste</h1>
       {checklistItems.map((item, i) => (
-        <div key={i} style={{ marginBottom: '2rem', padding: '1rem', background: '#ffffff', borderRadius: '0.5rem', boxShadow: '0 0 5px rgba(0,0,0,0.1)' }}>
-          <h2 style={{ color: `hsl(${i * 36}, 70%, 45%)`, fontWeight: 'bold' }}>{item.title}</h2>
-          <p>{item.description}</p>
-          <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
-            {item.subtasks.map((sub, j) => (
-              <li key={j}>
-                <label style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <input
-                    type="checkbox"
-                    checked={checked[i][j]}
-                    onChange={() => toggleCheck(i, j)}
-                    style={{ marginRight: '0.5rem' }}
-                  />
-                  {sub}
-                </label>
+        <div key={i} style={{ position: 'relative', marginBottom: '2rem', padding: '1rem', background: '#ffffff', borderRadius: '0.5rem', boxShadow: '0 0 5px rgba(0,0,0,0.1)' }}>
+          <h2 style={{ color: `hsl(${i * 36}, 70%, 45%)`, fontWeight: 'bold' }}>{item.title}
+            {storedCustom && checklistItems.length > defaultChecklist.length && i >= defaultChecklist.length && (
+              <button
+                  onClick={() => {
+                    const updated = [...notizen];
+                    updated[i].splice(ni, 1);
+                    setNotizen(updated);
+                    localStorage.setItem("notizen_state", JSON.stringify(updated));
+                  }}
+                  style={{
+                    marginLeft: '0.5rem',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#888',
+                    cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => e.target.style.color = '#f28b82'}
+                  onMouseOut={(e) => e.target.style.color = '#888'}
+                >
+                    localStorage.setItem("notizen_state", JSON.stringify(updated));
+                    e.target.value = "";
+                  }
+                }}
+                style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem', borderRadius: '5px', border: '1px solid #ccc' }}
+              />
+            </label>
+            <ul style={{ paddingLeft: '1rem', marginTop: '0.5rem' }}>
+              {notizen[i].map((note, ni) => (
+                <li key={ni} style={{ fontSize: '0.9rem', color: '#555', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>– {note}</span>
+                <button onClick={() => {
+                  const updated = [...notizen];
+                  updated[i].splice(ni, 1);
+                  setNotizen(updated);
+                  localStorage.setItem("notizen_state", JSON.stringify(updated));
+                }} style={{ marginLeft: '0.5rem', background: 'transparent', border: 'none', color: '#c62828', cursor: 'pointer' }}>
+                  ❌
+                </button>
               </li>
-            ))}
-          </ul>
+              ))}
+            </ul>
+          </div>
           {(item.title.includes("Ausweis") || item.title.includes("Führerschein")) && (
             <div>
               <label>
@@ -162,6 +197,9 @@ export default function NamensCheckliste() {
         </button>
         <button onClick={() => {
           localStorage.removeItem("custom_checklist");
+          localStorage.removeItem("checked_state");
+          localStorage.removeItem("termine_state");
+          localStorage.removeItem("notizen_state");
           window.location.reload();
         }} style={{ padding: '0.5rem 1rem', background: '#e57373', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
           🔄 Eigene Aufgaben zurücksetzen
