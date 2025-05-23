@@ -160,34 +160,7 @@ export default function NamensCheckliste() {
                 ❌
               </button>
             )}</h2>
-        <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-          Titel:<br />
-          <input type="text" id="custom-title" style={{ width: '100%', padding: '0.5rem', marginBottom: '0.5rem' }} />
-        </label>
-        <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-          Beschreibung:<br />
-          <input type="text" id="custom-desc" style={{ width: '100%', padding: '0.5rem', marginBottom: '0.5rem' }} />
-        </label>
-        <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-          Unterpunkte (durch Kommas trennen):<br />
-          <input type="text" id="custom-subtasks" style={{ width: '100%', padding: '0.5rem' }} />
-        </label>
-        <button onClick={() => {
-          const title = document.getElementById("custom-title").value;
-          const desc = document.getElementById("custom-desc").value;
-          const subtasks = document.getElementById("custom-subtasks").value.split(',').map(s => s.trim()).filter(Boolean);
-          if (!title) return;
-          const newItem = { title, description: desc, subtasks };
-          checklistItems.push(newItem);
-          localStorage.setItem("custom_checklist", JSON.stringify(checklistItems));
-          setChecked([...checked, subtasks.map(() => false)]);
-          setTermine([...termine, ""]);
-          document.getElementById("custom-title").value = "";
-          document.getElementById("custom-desc").value = "";
-          document.getElementById("custom-subtasks").value = "";
-        }} style={{ marginTop: '0.5rem', padding: '0.5rem 1rem', background: '#ba68c8', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-          ➕ Hinzufügen
-        </button>
+        
       </div>
           <div style={{ marginTop: '3rem', padding: '1rem', borderTop: '2px solid #ccc' }}>
         <h2 style={{ color: '#6a1b9a' }}>🆕 Eigene Aufgabe hinzufügen</h2>
