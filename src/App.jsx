@@ -42,7 +42,7 @@ export default function NamensCheckliste() {
     Object.entries(termine).forEach(([key, value]) => {
       const match = value.match(/(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})/);
       if (match) {
-        const [_, day, month, year, hour, minute] = match;
+        const [, day, month, year, hour, minute] = match;
         const reminderTime = new Date(`${year}-${month}-${day}T${hour}:${minute}:00`);
         const delay = reminderTime.getTime() - now.getTime();
         if (delay > 0) {
