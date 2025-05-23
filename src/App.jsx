@@ -136,76 +136,60 @@ export default function NamensCheckliste() {
           <h2 style={{ color: `hsl(${i * 36}, 70%, 45%)`, fontWeight: 'bold' }}>{item.title}
             {storedCustom && checklistItems.length > defaultChecklist.length && i >= defaultChecklist.length && (
               <button
-                  onClick={() => {
-                    const updated = [...notizen];
-                    updated[i].splice(ni, 1);
-                    setNotizen(updated);
-                    localStorage.setItem("notizen_state", JSON.stringify(updated));
-                  }}
-                  style={{
-                    marginLeft: '0.5rem',
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#888',
-                    cursor: 'pointer'
-                  }}
-                  onMouseOver={(e) => e.target.style.color = '#f28b82'}
-                  onMouseOut={(e) => e.target.style.color = '#888'}
-                >
-                    localStorage.setItem("notizen_state", JSON.stringify(updated));
-                    e.target.value = "";
-                  }
+                onClick={() => {
+                  const updatedItems = checklistItems.filter((_, idx) => idx !== i);
+                  const updatedChecked = checked.filter((_, idx) => idx !== i);
+                  const updatedTermine = termine.filter((_, idx) => idx !== i);
+                  const updatedNotizen = notizen.filter((_, idx) => idx !== i);
+                  localStorage.setItem("custom_checklist", JSON.stringify(updatedItems));
+                  localStorage.setItem("checked_state", JSON.stringify(updatedChecked));
+                  localStorage.setItem("termine_state", JSON.stringify(updatedTermine));
+                  localStorage.setItem("notizen_state", JSON.stringify(updatedNotizen));
+                  window.location.reload();
                 }}
-                style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem', borderRadius: '5px', border: '1px solid #ccc' }}
-              />
-            </label>
-            <ul style={{ paddingLeft: '1rem', marginTop: '0.5rem' }}>
-              {notizen[i].map((note, ni) => (
-                <li key={ni} style={{ fontSize: '0.9rem', color: '#555', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>– {note}</span>
-                <button onClick={() => {
-                  const updated = [...notizen];
-                  updated[i].splice(ni, 1);
-                  setNotizen(updated);
-                  localStorage.setItem("notizen_state", JSON.stringify(updated));
-                }} style={{ marginLeft: '0.5rem', background: 'transparent', border: 'none', color: '#c62828', cursor: 'pointer' }}>
-                  ❌
-                </button>
-              </li>
-              ))}
-            </ul>
-          </div>
-          {(item.title.includes("Ausweis") || item.title.includes("Führerschein")) && (
-            <div>
-              <label>
-                📅 Termin notieren: 
-                <input
-                  type="text"
-                  placeholder="z. B. 24.06. – 10:00 Uhr oder 'morgen'"
-                  value={termine[i]}
-                  onChange={(e) => handleTerminChange(i, e.target.value)}
-                  style={{ marginLeft: '0.5rem', padding: '0.25rem', borderRadius: '4px', border: '1px solid #ccc' }}
-                />
-              </label>
-            </div>
-          )}
-        </div>
-      ))}
-    <div style={{ textAlign: 'center', marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
-        <button onClick={handleDownloadPDF} style={{ padding: '0.5rem 1rem', background: '#81c784', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-          📄 Als PDF speichern
-        </button>
+                style={{
+                  marginLeft: '0.5rem',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#888',
+                  cursor: 'pointer'
+                }}
+                onMouseOver={(e) => e.target.style.color = '#f28b82'}
+                onMouseOut={(e) => e.target.style.color = '#888'}
+              >
+                ❌
+              </button>
+            )}</h2>
+        <label style={{ display: 'block', marginBottom: '0.5rem' }}>
+          Titel:<br />
+          <input type="text" id="custom-title" style={{ width: '100%', padding: '0.5rem', marginBottom: '0.5rem' }} />
+        </label>
+        <label style={{ display: 'block', marginBottom: '0.5rem' }}>
+          Beschreibung:<br />
+          <input type="text" id="custom-desc" style={{ width: '100%', padding: '0.5rem', marginBottom: '0.5rem' }} />
+        </label>
+        <label style={{ display: 'block', marginBottom: '0.5rem' }}>
+          Unterpunkte (durch Kommas trennen):<br />
+          <input type="text" id="custom-subtasks" style={{ width: '100%', padding: '0.5rem' }} />
+        </label>
         <button onClick={() => {
-          localStorage.removeItem("custom_checklist");
-          localStorage.removeItem("checked_state");
-          localStorage.removeItem("termine_state");
-          localStorage.removeItem("notizen_state");
-          window.location.reload();
-        }} style={{ padding: '0.5rem 1rem', background: '#e57373', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-          🔄 Eigene Aufgaben zurücksetzen
+          const title = document.getElementById("custom-title").value;
+          const desc = document.getElementById("custom-desc").value;
+          const subtasks = document.getElementById("custom-subtasks").value.split(',').map(s => s.trim()).filter(Boolean);
+          if (!title) return;
+          const newItem = { title, description: desc, subtasks };
+          checklistItems.push(newItem);
+          localStorage.setItem("custom_checklist", JSON.stringify(checklistItems));
+          setChecked([...checked, subtasks.map(() => false)]);
+          setTermine([...termine, ""]);
+          document.getElementById("custom-title").value = "";
+          document.getElementById("custom-desc").value = "";
+          document.getElementById("custom-subtasks").value = "";
+        }} style={{ marginTop: '0.5rem', padding: '0.5rem 1rem', background: '#ba68c8', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+          ➕ Hinzufügen
         </button>
       </div>
-    <div style={{ marginTop: '3rem', padding: '1rem', borderTop: '2px solid #ccc' }}>
+          <div style={{ marginTop: '3rem', padding: '1rem', borderTop: '2px solid #ccc' }}>
         <h2 style={{ color: '#6a1b9a' }}>🆕 Eigene Aufgabe hinzufügen</h2>
         <label style={{ display: 'block', marginBottom: '0.5rem' }}>
           Titel:<br />
