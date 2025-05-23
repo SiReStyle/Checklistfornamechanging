@@ -1,6 +1,3 @@
-if ('Notification' in window && Notification.permission !== 'granted') {
-  Notification.requestPermission();
-}
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 
@@ -37,6 +34,10 @@ export default function NamensCheckliste() {
   });
 
   useEffect(() => {
+    if ('Notification' in window && Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+
     const now = new Date();
     Object.entries(termine).forEach(([key, value]) => {
       const match = value.match(/(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})/);
