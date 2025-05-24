@@ -1,4 +1,3 @@
-// App.jsx
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 
@@ -56,4 +55,39 @@ export default function NamensCheckliste() {
       }
     });
   }, [termine]);
+
+  const handleCheck = (i, j) => {
+    const updated = [...checked];
+    updated[i][j] = !updated[i][j];
+    setChecked(updated);
+    localStorage.setItem("checked_state", JSON.stringify(updated));
+    if (updated[i].every(Boolean)) confetti();
+  };
+
+  return (
+    <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
+      <h1>📝 Checkliste zur Namensänderung</h1>
+      {checklistItems.map((item, i) => (
+        <div key={i} style={{ marginBottom: "2rem", padding: "1rem", background: "#fdf6f6", borderRadius: "12px" }}>
+          <h2>{item.title}</h2>
+          <p>{item.description}</p>
+          <ul>
+            {item.subtasks.map((sub, j) => (
+              <li key={j}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={checked[i][j]}
+                    onChange={() => handleCheck(i, j)}
+                    style={{ marginRight: "0.5rem" }}
+                  />
+                  {sub}
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
 }
